@@ -1,0 +1,16 @@
+#!/bin/zsh
+
+NOME=print$(printf "%02d\n" $(($RANDOM%100)))
+if [[ "$1" != "" ]]
+then
+  NOME="$(echo "$1" | tr -cd 'a-zA-Z0-9' | cut -c1-8)"
+fi
+  
+
+if [[ -d /media/patola/LCD-SD/gcode ]]
+then
+  /bin/cp /home/patola/maker/repetier/composition.gcode /media/patola/LCD-SD/gcode/${NOME}.gco && echo "Saved as \"/media/patola/LCD-SD/gcode/${NOME}.gco\"." || echo "*** Failed saving file." >&2
+else
+  echo "No Reprap SD mounted!!!" >&2
+  exit 2
+fi

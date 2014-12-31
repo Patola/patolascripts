@@ -1,0 +1,33 @@
+#!/bin/zsh
+
+days=2
+
+[[ $1 == [0-9]* ]] && days=$(echo $1 | tr -dc '[[:digit:]]')
+
+if [[ $0 == *tdel ]]
+then
+  dir=/media/patola/LCD-SD/gcode/
+  which=LCD-SD
+elif [[ $0 == *pdel ]]
+then
+  dir="/media/patola/Reprap SD/gcode/"
+  which="Reprap SD"
+else
+  echo "*** No sense here. Executable should be pdel or tdel!!!"
+  exit 4
+fi
+
+[[ -d "${dir}" ]] || {
+  echo "**** ${which} NOT MOUNTED!!! Fix it and try again!"
+  exit 2
+}
+
+amount=$(find "${dir}" -mtime +"${days}" -type f | wc -l)
+whichones="$(echo $(cd "${dir}" && find . -mtime +"${days}" -type f | sed 's/^\.\///'))"
+
+[[ $amount == 0 ]] && {
+  echo "**** NO FILES there. Nothing to erase."
+  exit 3
+}
+
+find "${dir}" -mtime +"${days}" -type f -exec rm -f {} \; && echo "${amount} files erased: ${whichones}\n"

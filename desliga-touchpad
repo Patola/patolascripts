@@ -1,0 +1,2 @@
+#!/bin/zsh
+/usr/bin/xinput set-prop 13 "Device Enabled" 0

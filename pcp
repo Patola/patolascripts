@@ -1,0 +1,19 @@
+#!/bin/zsh
+ORIG="/home/patola/maker/repetier/composition.gcode"
+DEST="/tmp/pcp-temp.$$"
+
+NOME=print$(printf "%02d\n" $(($RANDOM%100)))
+if [[ "$1" != "" ]]
+then
+  NOME="$(echo "$1" | tr -cd 'a-zA-Z0-9' | cut -c1-8)"
+fi
+
+if [[ -d /media/patola/Reprap\ SD/gcode && -f "$ORIG" ]]
+then
+  awk '{print (FNR<30 && $0 ~ /^G1 Z[0-9.]+ F[0-9.]+/)?"G1 " $2 " F100":$0}' < "$ORIG" > "$DEST"
+  /bin/cp "$DEST" /media/patola/Reprap\ SD/gcode/${NOME}.gco && echo "Saved as \"/media/patola/Reprap SD/gcode/${NOME}.gco\"." || echo "*** Failed saving file." >&2
+  /bin/rm -f "$DEST"
+else
+  echo "No Reprap SD mounted!!!" >&2
+  exit 2
+fi

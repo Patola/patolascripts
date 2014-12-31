@@ -1,0 +1,28 @@
+#!/usr/bin/ksh
+#===============================================================================
+#
+#          FILE: mkhmcusr
+# 
+#         USAGE: ./mkhmcusr <1st arg> <2nd arg> <3rd> <4th> <5th> <6th> <7th> <8th>
+# 
+#   DESCRIPTION: Script to show Ana WHY " is not used in mkhmcusr
+# 
+#       OPTIONS: ---
+#  REQUIREMENTS: ---
+#          BUGS: ---
+#         NOTES: ---
+#        AUTHOR: Cláudio Sampaio (Patola), csampaio@br.ibm.com
+#  ORGANIZATION: IBM
+#       CREATED: 29-08-2012 17:13:51 BRT
+#      REVISION:  ---
+#===============================================================================
+
+echo "First argument is '$1'"
+echo "Second argument is '$2'"
+echo "Third argument is '$3'"
+echo "Fourth argument is '$4'"
+echo "Fifth argument is '$5'"
+echo "Sixth argument is '$6'"
+echo "Seventh argument is '$7'"
+echo "Eightth argument is '$8'"
+

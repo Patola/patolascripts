@@ -1,0 +1,30 @@
+#!/bin/zsh
+
+[[ -d /media/patola/LCD-SD/gcode ]] || {
+  echo "Reprap SD not mounted. Please mount it before running this script.\n"
+  exit 3
+}
+
+
+for first in "$@"
+do
+
+  if [[ -f "${first}" ]]
+  then
+    file="$first"
+  elif [[ -f "${first}.gco" ]]
+  then
+    file="${first}.gco"
+  elif [[ -f "/tmp/${first}.gco" ]]
+  then
+    file="/tmp/${first}.gco"
+  elif [[ -f "/tmp/${first}" ]]
+  then
+    file="/tmp/${first}"
+  else
+    echo "Can't find file '$first'. Please check.\n"
+    exit 2
+  fi
+
+  /bin/sed -n '/^\;CURA_PROFILE_STRING/!p' "$file" | awk 'BEGIN {x=0} ($0 ~ /^\;Sliced at:/) {x=1} (x==1) {print $0}' > /media/patola/LCD-SD/gcode/"$(/usr/bin/basename "$file")" && echo "Copied '$file' to '/media/patola/LCD-SD/gcode/$(/usr/bin/basename "$file")'."
+done

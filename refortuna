@@ -1,0 +1,15 @@
+#!/bin/zsh
+set -A fortunas $(cd /usr/share/games/fortunes && ls *.dat | sed 's/\.dat$//')
+a=$((RANDOM%($#fortunas)+1)) 
+fortuna=$fortunas[$a] 
+textofortuna="$(/usr/games/fortune $fortuna)"
+src="$(echo "$textofortuna" | tail -3 | egrep '^[[:space:]]+--')" # one line only (hopefully)
+text="$(echo "$textofortuna" | fgrep -v "$src")"
+src=$(echo "$src" | sed 's/^.*--//')
+
+[[ "$src" == "" ]] && src=Anonymous
+
+echo "$text" > ~/.fortuna.text
+echo "$src" > ~/.fortuna.author
+echo "$text
+$src" > ~/.fortuna.all

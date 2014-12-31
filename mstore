@@ -1,0 +1,2 @@
+#!/bin/sh
+exec "/home/patola/.cxoffice/win98/desktopdata/cxmenu/StartMenu.C^5E3A^5Fusers^5Fcrossover^5FStart^2BMenu/Programs/Microsoft+Office+Tools/Microsoft+Clip+Organizer" "$@"
