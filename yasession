@@ -1,0 +1,39 @@
+#!/bin/zsh
+
+NEWNAME="$1"
+THISPROCESS=$$
+ARGS="$@"
+
+[[ $(id -u) -eq 0 ]] && {
+  NEWNAME="$(echo "$NEWNAME" | tr -d "'")"
+  su - "$(who am i | awk '{print $1}')" -c "$0 '${NEWNAME}'"
+  exit 0
+}
+
+[[ "$NEWNAME" == "" ]] && {
+  xPPID=$(ps h -o ppid -p $THISPROCESS | tr -d ' ') # Parent pid, because we're are script
+  NEWNAME="$(ps h -p $xPPID -o comm)"
+}
+
+found=0
+for session in $(qdbus org.kde.yakuake | grep '^/Sessions/' | sed 's#/Sessions/##')
+do
+  sessionpid=$(qdbus org.kde.yakuake /Sessions/$session org.kde.konsole.Session.processId)
+  pids=$(pstree -p $sessionpid | tr -d '-' | sed 's/[^()]*(\([0-9][0-9]*\))/ \1/g;s/^ *//;s/ /$|^/g;s/^/^/;s/$/$/')
+  if echo $THISPROCESS | egrep -q "$pids"
+  then
+    found=$session
+#    tab=$(qdbus org.kde.yakuake /yakuake/tabs org.kde.yakuake.sessionAtTab $session)
+    break
+  fi
+done
+
+if [[ $found -eq 0 ]]
+then
+  exit 1
+fi
+
+# I don't know why
+let session=session-1
+
+echo $session

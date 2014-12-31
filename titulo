@@ -1,0 +1,3 @@
+#!/bin/zsh
+#echo $(lynx -source -dump "$1" | sed -n -r '/<title>/,/<\/title>/ { s/<(\/|)title>// ; P}')
+echo $( ( lynx -source -dump "$1" ) | sed -r 's/<(\/|)title>/<\1title>/ig' | sed -n -r '/<title>/,/<\/title>/ { s/.*<title>//; /<\/title>/!p; /<\/title>/ { s/<\/title>.*// ; P; q } }') | /usr/bin/perl -Xne 'use HTML::Entities; print decode_entities($_), "\n";'

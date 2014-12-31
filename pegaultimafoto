@@ -1,0 +1,30 @@
+#!/bin/zsh
+
+howmany=1
+NEXUS=0
+
+[[ "$1" == "-n" ]] && {
+  echo "Getting from Nexus 4 with Ubuntu."
+  NEXUS=1
+  shift
+}
+
+[[ "$1" =~ ^[0-9]+$ ]] && howmany=$1
+
+if [[ $NEXUS -eq 0 ]]
+then
+  set -A ultimafoto
+  ssh root@galaxytola "busybox ls -1 -t -r /sdcard/DCIM/Camera" |tail -$howmany | while read foto
+  do
+    ultimafoto+=("$foto")
+  done
+
+  [[ $ultimafoto == "" ]] && { echo "Nenhuma foto!" ; exit 1 }
+
+  for foto in $ultimafoto
+  do
+    ssh root@galaxytola "cat '/sdcard/DCIM/Camera/${foto}'" > "./$foto" < /dev/null && echo "$foto downloaded."
+  done
+else
+  scp phablet@nexus4:"\$(find /home/phablet/Pictures -ctime -1 -type f | tail -$howmany)" .
+fi

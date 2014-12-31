@@ -1,0 +1,8 @@
+#!/bin/zsh
+
+if /usr/bin/qdbus | grep -q org.gnome.ScreenSaver
+then
+  /usr/bin/qdbus org.gnome.ScreenSaver / org.gnome.ScreenSaver.Lock
+else
+  /usr/bin/qdbus org.kde.screensaver /ScreenSaver org.freedesktop.ScreenSaver.Lock
+fi

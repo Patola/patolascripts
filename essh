@@ -1,0 +1,322 @@
+#!/bin/zsh - 
+#===============================================================================
+#
+#          FILE: essh
+# 
+#         USAGE: essh <ssh parameters>
+# 
+#   DESCRIPTION: Automatic ssh wrapper/script. It examines the parameters
+#                passed and automatically determines the correct socks wrapper
+#                to use, the right userid and such. It also logs the output
+#                to a special directory ~/logs/<client>/file.datetime.log 
+# 
+#       OPTIONS: mostly the same as ssh; essh -l forces logging.
+#  REQUIREMENTS: wrapper scripts for tsocks must be in /usr/local/bin/<client>
+#          BUGS: it does not work if you specify user@host.
+#         NOTES: for most clients you don't need to supply -l
+#        AUTHOR: Cláudio Sampaio (Patola), csampaio@br.ibm.com
+#  ORGANIZATION: IBM
+#       CREATED: 16-07-2012 12:25:39 BRT
+#      REVISION: 0.6
+#===============================================================================
+
+#set -o nounset                              # Treat unset variables as an error
+
+IBMID="csampaio"
+DOWID="nzz4635"
+GAPID="cl248uv"
+PMID="sampaicl"
+CAIXACUID="patola"
+UBUNTUTOUCHID="phablet"
+NISOURCEID="a804895"
+UBUNTUTOUCHID="phablet"
+N9ID="developer"
+GALAXYID="root"
+LINUXID="patola"
+LOGDIR="~/logs" # MUST exist and must NOT contain spaces (sorry)
+SSH=/usr/bin/ssh
+MINREMOVE=300 # Amount of bytes the logfile must have for not being purged
+CLIENT=.
+ID=$(id -un)
+
+# Don't change anything after this part
+
+PORT=""
+USER=""
+TSOCKS=""
+HOST="$1"
+
+[[ $# == 0 ]] && {
+  echo "*** Usage: essh [-l] host [ssh parameters...]"
+  echo "    If you use -l, the script will log the session to $LOGDIR."
+  echo "    If you want to add or override any parameters, use them after"
+  echo "    the hostname, e.g."
+  echo "    \$ essh myhost -l assman123 -o PubkeyAuthentication=no"
+  exit 1
+}
+
+shift
+SHORTHOST=${HOST%%.*}
+ISSHORTHOST=$([ "$HOST" = "$SHORTHOST" ]; echo $?)
+EXTRAPAR=""
+LOG=no
+LOGFILE=""
+LOGDIR="$(eval echo $LOGDIR)"
+# TSOCKS_CONFFILE=
+
+[[ "$HOST" == "-l" ]] && { # Should we log the session?
+  [[ ! -d "$LOGDIR" ]] && {
+	echo "**** ERROR! If you use the '-l' (LOG) option, the log directory \"$LOGDIR\" must exist!" >&2
+	exit 3
+  }
+  HOST="$1"
+  SHORTHOST=${HOST%%.*}
+  ISSHORTHOST=$([ "$HOST" = "$SHORTHOST" ]; echo $?)
+  LOG=yes
+
+  shift
+
+  if [[ $ISSHORTHOST -eq 0 ]]
+  then
+    LOGFILE="${SHORTHOST}.$(date '+%y%m%d.%H%M%S').log"
+  else
+    LOGFILE="${HOST}.$(date '+%y%m%d.%H%M%S').log"
+  fi
+}
+
+if [[ "$SHORTHOST" = galaxy* ]]
+then
+        LOG=yes
+	ID="$GALAXYID"
+	USER="-l $ID"
+        if ip addr | grep 'inet ' | grep 192.168.43.
+        then
+          HOST=192.168.43.1
+        else
+          HOST=10.0.0.10
+        fi
+	CLIENT=PERSONAL_TABLET
+elif [[ "$SHORTHOST" = "caixacu" || "$SHORTHOST" = "cubox" || "$SHORTHOST" = "boxeta" ]]
+then
+	[[ "$HOST" = "cubox" ]] && {
+		HOST=caixacu
+		SHORTHOST=caixacu
+	}
+	[[ "$HOST" = "cubox.patola.org" ]] && {
+		HOST=caixacu.patola.org
+		SHORTHOST=caixacu
+	}
+	ID="$CAIXACUID"
+	LOG=no # No logging, because we will typically use with tmux
+	USER="-l $ID"
+	CLIENT="PERSONAL_CAIXACU"
+elif [[ "$SHORTHOST" = "odroidx2" || "$SHORTHOST" = "gk802" || "$SHORTHOST" = "ug802" \
+     || "$SHORTHOST" = "nexus4" || "$SHORTHOST" = "nexus7" || "$SHORTHOST" = "chromebook" \
+     || "$SHORTHOST" = "raspberry" || "$SHORTHOST" = "rpi" || "$SHORTHOST" = "raspberrypi" \
+     || "$SHORTHOST" = "t428" || "$SHORTHOST" = "pcduino" || "$SHORTHOST" = "esbc3200" \
+     || "$SHORTHOST" = "beaglebone" || "$SHORTHOST" = "cubieboard" ]]
+then
+	if [[ "$SHORTHOST" = "nexus4" ]]
+	then
+	  ID="$UBUNTUTOUCHID"
+	else
+	  ID="$CAIXACUID"
+	fi
+	SERVERALLCAPS=$(echo "$SHORTHOST" | tr a-z A-Z)
+	LOG=yes # No logging, because we will typically use with tmux
+	if [[ "$SHORTHOST" = "nexus4" ]]
+	then
+#		USER="-l $UBUNTUTOUCHID"
+		USER="-l $ID"
+	else
+		USER="-l $ID"
+	fi
+	CLIENT="PERSONAL_${SERVERALLCAPS}"
+elif [[ "$SHORTHOST" = "n9" ]]
+then
+        LOG=yes
+	ID="$N9ID"
+	USER="-l $ID"
+        HOST=10.0.0.99
+	CLIENT=PERSONAL_N9
+elif [[ "$SHORTHOST" = "nexus7" ]]
+then
+        LOG=no
+	ID="$LINUXID"
+	USER="-l $ID"
+	CLIENT=PERSONAL_$(echo "$shorthost" | tr 'a-z' 'A-Z')
+elif [[ "$SHORTHOST" = redhat ]]
+then
+	LOG=yes
+	ID="$LINUXID"
+	USER="-l $ID"
+	HOST=127.0.0.1
+	EXTRAPAR="-p 2222"
+	CLIENT=PERSONAL_VM_REDHAT
+elif [[ "$SHORTHOST" = psys* || "$SHORTHOST" = phmc* || "$SHORTHOST" = plrc* || "$SHORTHOST" = gap || "$SHORTHOST" = usrcc* || "$SHORTHOST" = pnet01 ]]
+then
+	LOG=yes
+	export TERM=xterm
+	TSOCKS=/usr/local/bin/gap
+	ID="$GAPID"
+	USER="-l $ID"
+	export TERM=xterm
+	HOST="${SHORTHOST}.gap.com"
+	CLIENT=GAP
+elif [[ "$HOST" = lge.ibi.unicamp.br || "$SHORTHOST" = lge || "$SHORTHOST" = bioinfo* ]]
+then
+	HOST="${SHORTHOST}.ibi.unicamp.br"
+	EXTRAPAR="-D 9050 -C"
+	CLIENT=ACADEMIC_LGE
+elif [[ "$HOST" = patola.ath.cx || "$HOST" = patola.or* || "$HOST" = linuxfud.org || "$HOST" = 10.0.0.1 ]]
+then	# my box
+	IP=$(LANG=C LC_ALL=C /sbin/ifconfig wlan0 | grep 'inet addr:' | awk '{print $2}' | cut -f2 -d:)
+	[[ $IP = 10.0.0.* ]] && HOST=10.0.0.1
+	PORT="-p 450"
+	EXTRAPAR="-D 8080 -C"
+	CLIENT=PERSONAL_HOME
+elif [[ "$SHORTHOST" = nas* || "$SHORTHOST" = us97* ]]
+then
+	LOG=yes
+        TSOCKS=/usr/local/bin/nasco
+        export TERM=xterm
+	ID="$IBMID"
+	USER="-l $ID"
+	CLIENT=NASCO
+elif [[ "$SHORTHOST" = gm* || "$HOST" = 10.23.195.* || "$SHORTHOST" = gsc* || "$HOST" = 10.13.208.* ]]
+then
+	LOG=yes
+	export LC_ALL=pt_BR.ISO-8859-15 LANG=pt_BR.ISO-8859-15 LC_COLLATE=pt_BR.ISO-8859-15
+	TSOCKS=/usr/local/bin/gm
+	export TERM=xterm
+	ID="$IBMID"
+	USER="-l $ID"
+	CLIENT=GM
+elif [[ "$SHORTHOST" = sasun4 || "$SHORTHOST" = 9.44.132.21 ]]
+then
+	LOG=yes
+	TSOCKS=
+	export LC_ALL=pt_PT.iso885915 LANG=pt_PT.iso885915 LC_COLLATE=pt_PT.iso885915
+	export TERM=xterm
+	ID="$IBMID"
+	USER="-l $ID"
+	CLIENT=GM
+elif [[ "$SHORTHOST" = nisource || "$HOST" = 10.101.14.100 || "$SHORTHOST" = saxmcowst01 || "$SHORTHOST" = [VS]NX* || \
+	"$SHORTHOST" = [vs]nx* || "$HOST" = saxm* ]]
+then
+	LOG=yes
+	TSOCKS=/usr/local/bin/nisource
+	export TERM=xterm
+	ID="$NISOURCEID"
+	USER="-l $ID"
+	CLIENT=NISOURCE
+        EXTRAPAR="-q"
+	MINREMOVE=1000
+elif [[ "$SHORTHOST" = mt[0m]* || "$SHORTHOST" = ibm-a* || "$SHORTHOST" = cwsp0* || "$SHORTHOST" = cnb0* || \
+	"$SHORTHOST" = mtlv* || "$SHORTHOST" = hofw* || "$SHORTHOST" = hovpn* || "$SHORTHOST" = n[0-9][0-9]sp* ]]
+then
+	LOG=yes
+	TSOCKS=/usr/local/bin/whirlpool
+	export TERM=xterm
+	ID="$IBID"
+	USER="-l $ID"
+	CLIENT=WHIRLPOOL
+elif [[ "$SHORTHOST" = dow || "$HOST" = 167.210.175.133 ]]
+then
+	LOG=yes
+	TSOCKS=
+	export TERM=xterm
+	ID="$DOWID"
+	USER="-l $ID"
+	CLIENT=DOW
+elif [[ "$SHORTHOST" = us[mb]d* || "$SHORTHOST" = nltnz* || "$SHORTHOST" = sgsd* ]]
+then
+	LOG=yes
+	TSOCKS=/usr/local/bin/dow
+	export TERM=xterm
+	ID="$DOWID"
+	USER="-l $ID"
+	CLIENT=DOW
+elif [[ "$SHORTHOST" = linuxadm || "$HOST" = 9.18.222.213 ]]
+then
+	LOG=yes
+	TSOCKS=
+	ID="$LINUXID"
+	USER="-l $ID"
+	CLIENT=IBM
+elif [[ "$SHORTHOST" = wpatola ]]
+then
+	LOG=yes
+	TSOCKS=
+	export TERM=xterm
+	ID="$LINUXID"
+	USER="-l $ID"
+	CLIENT=IBM
+fi
+
+trap '[[ -r "${LOGDIR}/${LOGFILE}" && ! -s "${LOGDIR}/${LOGFILE}" ]] && {
+    echo "Arquivo de logs ${LOGDIR}/${LOGFILE} com 0 bytes, removendo..."
+    rm "${LOGDIR}/${LOGFILE}" }' ABRT FPE ILL QUIT
+
+[[ "$LOG" == "yes" ]] && { # Should we log the session?
+  [[ ! -d "$LOGDIR" ]] && {
+	echo "**** ERROR! If you use the '-l' (LOG) option, the log directory \"$LOGDIR\" must exist!" >&2
+	exit 3
+  }
+
+  if [[ $ISSHORTHOST -eq 0 ]]
+  then
+    LOGFILE="${SHORTHOST}.$(date '+%y%m%d.%H%M%S').log"
+  else
+    LOGFILE="${HOST}.$(date '+%y%m%d.%H%M%S').log"
+  fi
+}
+
+NEWTITLE="[ ${SHORTHOST:u} ]"
+#Set Tab Title
+if [[ $COLORTERM == "gnome-terminal" ]]
+then
+  OLDTITLE=Terminal
+  echo -en "\e]0;${NEWTITLE}\a" 
+elif pgrep yakuake >/dev/null 2>&1
+then
+  OLDTITLE=$( qdbus org.kde.yakuake /yakuake/tabs org.kde.yakuake.tabTitle $(/usr/local/bin/yasession) )
+#  /usr/local/bin/yaname -q "$ID@$SHORTHOST"
+  /usr/local/bin/yaname -q "$NEWTITLE"
+elif qdbus org.guake.RemoteControl > /dev/null 2>&1
+then
+  OLDTITLE="Terminal $(qdbus org.guake.RemoteControl /org/guake/RemoteControl org.guake.RemoteControl.get_selected_tab)"
+  qdbus org.guake.RemoteControl /org/guake/RemoteControl org.guake.RemoteControl.rename_current_tab "$NEWTITLE"
+fi
+
+if [[ -z "${LOGDIR}/${CLIENT}/$LOGFILE" || "$LOG" == "no" ]]
+then
+  setopt sh_word_split
+  $TSOCKS $SSH $EXTRAPAR $PORT $USER "$HOST" "$@"
+else
+  mkdir -p "${LOGDIR}/${CLIENT}"
+  echo "Script iniciado, o arquivo é ${LOGDIR}/${CLIENT}/${LOGFILE}"
+  $TSOCKS /usr/bin/script -q -c "$SSH $EXTRAPAR $PORT $USER $HOST $*" "${LOGDIR}/${CLIENT}/${LOGFILE}" 
+  logsize=$( /usr/bin/stat --format='%s' "${LOGDIR}/${CLIENT}/${LOGFILE}" )
+  if [[ -r "${LOGDIR}/${CLIENT}/${LOGFILE}" &&  $logsize -gt $MINREMOVE ]]
+  then
+    echo "Script terminado, o arquivo é ${LOGDIR}/${CLIENT}/${LOGFILE} ($logsize bytes)"
+  else
+    echo "Arquivo de logs ${LOGDIR}/${CLIENT}/${LOGFILE} com menos de $MINREMOVE bytes ($logsize), removendo..."
+    rm "${LOGDIR}/${CLIENT}/${LOGFILE}"
+  fi
+  
+fi
+
+# Restore tab title
+if [[ $COLORTERM == "gnome-terminal" ]]
+then
+  echo -en "\e]0;${OLDTITLE}\a"
+elif pgrep yakuake >/dev/null 2>&1
+then
+  /usr/local/bin/yaname -q "$OLDTITLE"
+elif qdbus org.guake.RemoteControl > /dev/null 2>&1
+then
+  OLDTITLE="Terminal $(qdbus org.guake.RemoteControl /org/guake/RemoteControl org.guake.RemoteControl.get_selected_tab)"
+  qdbus org.guake.RemoteControl /org/guake/RemoteControl org.guake.RemoteControl.rename_current_tab "$OLDTITLE"
+fi

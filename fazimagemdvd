@@ -1,0 +1,7 @@
+#!/bin/bash
+
+#growisofs -Z /dev/dvd -dvd-compat -dvd-video -speed=1 "$@"
+
+growisofs -Z /dev/sr0 -dvd-compat -speed=2 -R -J -f -l -udf "$@"
+# -graft-points dir=dir dir2=dir2 etc.
+# -root might solve it (didn't work)

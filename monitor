@@ -1,0 +1,4 @@
+#!/bin/zsh
+IFACE=$(netstat -rn | grep default | head -1 | awk '{print $8}')
+tmpfile=$(/bin/mktemp) && echo -e 'startup_message off\nscreen -t top htop\nsplit\nfocus\nscreen -t nethogs nethogs '${IFACE}'\nsplit\nfocus\nscreen -t iotop iotop' > $tmpfile && /usr/bin/screen -c $tmpfile
+rm $tmpfile

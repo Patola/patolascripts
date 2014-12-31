@@ -1,0 +1,4 @@
+#!/bin/zsh
+
+export TSOCKS_CONF_FILE=/etc/tsocks.conf.casa
+tsocks "$@"

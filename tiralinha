@@ -1,0 +1,59 @@
+#!/bin/zsh
+
+usage() {
+  echo "*** Tiralinha 1.1"
+  echo "-----------------"
+  echo "Usage: $0 <line number1> [<line number 2> <line number 3>...] <file1> [<file2> <file3>...]"
+}
+
+if [[ $# -eq 0 ]]
+then
+  usage
+  exit 2
+fi
+
+if [[ $# -eq 1 ]]
+then
+  if [[ $1 =~ ^[0-9][0-9]*$ ]]
+  then
+    linha=$1
+    files=~/.ssh/known_hosts
+  else
+    usage
+    echo "First argument (line number) must be a number!"
+    exit 3
+  fi
+else
+  [[ $1 =~ ^[0-9][0-9]*$ ]] || {
+    usage
+    echo "First argument (line number) must be a number!"
+    exit 3
+  }
+  linha=$1
+  shift
+  while [[ $1 =~ ^[0-9][0-9]*$ ]]
+  do
+    linha="$linha $1"
+    shift
+  done
+
+  files="$@"
+fi
+
+initexpr="$(echo $linha | sed 's/\(\w\w*\)/a[\1]=y\;/g')"
+
+for arq in $files
+do
+  [[ -r "$arq" && -w "$arq" ]] || {
+    echo "File '$file' is not readable or writable. Aborting."
+    exit 4
+  }
+done
+
+for arq in $files
+do
+  newfile=$(/bin/mktemp)
+#  /bin/sed -n ${linha}'!p' < "$arq" > "$newfile" && /bin/cat "$newfile" > "$arq"
+  /usr/bin/awk 'BEGIN {'"$initexpr"'} (!(FNR in a)) {print $0}' < "$arq" > "$newfile" && /bin/cat "$newfile" > "$arq"
+  /bin/rm "$newfile"
+done

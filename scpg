@@ -1,0 +1,59 @@
+#!/bin/bash
+typeset -a allowedsubdirs
+allowedsubdirs=(assistir audiobooks filmes ebooks mp3 dropbear mnt . external externalm)
+
+function elementExists
+{
+
+  if [ -z "$1" ]
+  then
+    return 1
+  fi
+
+  for i in "${allowedsubdirs[@]}"
+  do
+    if [[ "$i" == "$1" ]]
+    then
+      return 0
+    fi
+  done
+
+return 1
+}
+
+typeset -a source # list of elements
+
+if [ $# -lt 2 ]
+then
+  echo "*** Usage: $0 <source files> <galaxy tab directory>" >&2
+  exit 2
+fi
+
+while [ $# -gt 1 ]
+do
+  file="$1"; shift;
+  if [ ! -r "$file" ]
+  then
+    echo "*** File/directory '$file' is not readable or does not exist." >&2
+    exit 1
+  fi
+  source+=("$file")
+done
+
+destination="$1"
+if elementExists "$destination"
+then
+  if [[ "$destination" == "external" ]]
+  then
+    destination=/mnt/sdcard/external_sd
+  elif [[ "$destination" == "externalm" ]]
+  then
+    destination=/mnt/sdcard/external_sd/musicas
+  else
+    destination="/sdcard/home/$destination"
+  fi
+  /bin/tar --transform='s,^.*/,,' -cvf - "${source[@]}" | ssh root@10.0.0.10 "tar -x -v -f - -C $destination"
+else
+  echo "*** Destination is not one of the valid ones: (${allowedsubdirs[@]})" >&2
+  exit 3
+fi

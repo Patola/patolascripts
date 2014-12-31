@@ -1,0 +1,3 @@
+#!/bin/bash
+REMOTEHOST=$1
+/usr/bin/ssh $REMOTEHOST "cat >> ~/.ssh/authorized_keys" < ~/.ssh/id_rsa.pub 
