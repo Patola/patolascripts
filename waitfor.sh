@@ -3,7 +3,8 @@
 #
 #          FILE: waitfor.sh
 # 
-#         USAGE: ./waitfor.sh 
+#         USAGE: ./waitfor.sh <PID>, or
+#                ./waitfor.sh <process name>
 # 
 #   DESCRIPTION: waits for one process to finish without using loops. 
 # 
