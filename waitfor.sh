@@ -10,6 +10,8 @@
 # 
 #       OPTIONS: None so far
 #  REQUIREMENTS: inotifywait installed
+#    EXIT CODES: 4 no PID, 5 more than one named process, 3 more than one process,
+#                54 for timeout command not present, 124 for timeout elapsed
 #          BUGS: None so far
 #         NOTES: ---
 #        AUTHOR: Cláudio "Patola" Sampaio (Patola), patola@gmail.comm
@@ -27,14 +29,29 @@ usage() {
   echo -e "\nWaits for one process to finish by select() instead of polling (i.e., not looping until it exits)." >&2
 }
 
+zparseopts -D -E -A Args -- t:
+
+TIMECMD=""
+(( ${+Args[-t]} )) && {
+  if [[ ${Args[-t]} =~ ^[0-9][0-9]*$ ]]
+  then
+    TIMECMD="/usr/bin/timeout"
+    TIMEDURATION="${Args[-t]}"
+  else
+    echo "Time parameter must be numeric (seconds), '${Args[-t]}' is not." >&2
+    usage
+    exit 2
+  fi
+}
+
 [[ $# -eq 1 ]] || {
-  usage;
+  usage
   exit 3
 }
 
-[[ -x /usr/bin/inotifywait ]] || {
-  echo "This script requires inotifywait present on the system to work." >&2
-  echo "Please install inotifywait." >&2
+[[ -x /usr/bin/timeout ]] || {
+  echo "This script requires the timeout command present on the system to work." >&2
+  echo "Please install coreutils." >&2
   exit 54
 }
 
@@ -56,5 +73,6 @@ else
   }
 fi
 
-/usr/bin/inotifywait -e close /proc/$PID/cgroup > /dev/null 2>&1
+#/usr/bin/inotifywait -e close /proc/$PID/cgroup > /dev/null 2>&1
+$TIMECMD $TIMEDURATION /usr/bin/tail -f /dev/null --pid=$PID
 exit $?
