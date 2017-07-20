@@ -3,10 +3,13 @@
 #
 #          FILE: waitfor.sh
 # 
-#         USAGE: ./waitfor.sh <PID>, or
-#                ./waitfor.sh <process name>
+#         USAGE: ./waitfor.sh [-t timeout] <PID>, or
+#                ./waitfor.sh [-t timeout] <process name>
+#                ./waitfor.sh --help for usage
 # 
 #   DESCRIPTION: waits for one process to finish without using loops. 
+#                If timeout (in seconds) is provided, exits if the process
+#                still hasn't finished.
 # 
 #       OPTIONS: None so far
 #  REQUIREMENTS: inotifywait installed
