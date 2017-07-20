@@ -21,15 +21,23 @@
 #===============================================================================
 
 set -o nounset                              # Treat unset variables as an error
+PROG=$0
 
 usage() {
   echo " Usage:" >&2
-  echo "$0 <pid of process>, or" >&2
-  echo "$0 <name of process>" >&2
+  echo "$(basename $PROG) [-t time] <pid of process>, or" >&2
+  echo "$(basename $PROG) [-t time] <name of process>, or" >&2
+  echo "$(basename $PROG) --help" >&2
   echo -e "\nWaits for one process to finish by select() instead of polling (i.e., not looping until it exits)." >&2
+  echo "If timeout <time> is reached, it stops waiting and exits with no error code." >&2
 }
 
-zparseopts -D -E -A Args -- t:
+zparseopts -D -E -A Args -- t: -help
+
+(( ${+Args[--help]} )) && {
+  usage
+  exit 0
+}
 
 TIMECMD=""
 (( ${+Args[-t]} )) && {
