@@ -3,13 +3,10 @@
 #
 #          FILE: waitfor.sh
 # 
-#         USAGE: ./waitfor.sh [-t timeout] <PID>, or
-#                ./waitfor.sh [-t timeout] <process name>
-#                ./waitfor.sh --help for usage
+#         USAGE: ./waitfor.sh <PID>, or
+#                ./waitfor.sh <process name>
 # 
 #   DESCRIPTION: waits for one process to finish without using loops. 
-#                If timeout (in seconds) is provided, exits if the process
-#                still hasn't finished.
 # 
 #       OPTIONS: None so far
 #  REQUIREMENTS: inotifywait installed
@@ -43,6 +40,7 @@ zparseopts -D -E -A Args -- t: -help
 }
 
 TIMECMD=""
+TIMEDURATION=""
 (( ${+Args[-t]} )) && {
   if [[ ${Args[-t]} =~ ^[0-9][0-9]*$ ]]
   then
