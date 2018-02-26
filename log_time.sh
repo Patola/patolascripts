@@ -15,7 +15,7 @@
 #        AUTHOR: Cláudio "Patola" Sampaio (Patola), patola@gmail.comm
 #  ORGANIZATION: MakerLinux
 #       CREATED: 25/02/2018 22:56:47 -03
-#       VERSION: 0.9a
+#       VERSION: 0.9b
 #      REVISION: By a bunch of monkeys (NOT apes).
 #===============================================================================
 
@@ -45,13 +45,13 @@ function log_time() {
 
   if [[ -f ~/logs/"${arquivolog}" ]]
   then
-    tempoanterior="$(tail -1 ~/logs/${arquivolog} | cut -d' ' -f1)"
+    tempoanterior="$(tail -1 ~/logs/${arquivolog} | cut -d' ' -f6)"
     let tempototal=tempoanterior+tempogasto
   else
     let tempototal=tempogasto
   fi
 
-  echo "$tempogasto seconds this time ($(convertsecs $tempogasto)), $tempototal total time ($(convertsecs $tempototal)). [started $datainicio, ended $datafim]" | tee -a ~/logs/"${arquivolog}"
+  echo "$tempogasto seconds this time ($(convertsecs $tempogasto)), $tempototal seconds total time ($(convertsecs $tempototal)). [started $datainicio, ended $datafim]" | tee -a ~/logs/"${arquivolog}"
   return 0
 }
 
