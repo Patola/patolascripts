@@ -1,10 +1,10 @@
-#!/bin/zsh - 
+#!/bin/zsh -
 #===============================================================================
 #
 #          FILE: log_time.sh
-# 
+#
 #         USAGE: log_time.sh <executable> <arguments of executable>
-# 
+#
 #   DESCRIPTION: logs time spent by games/apps. Records all info in a text-file
 #                (~/logs/executable.ltime) in natural language.
 #       OPTIONS: No option.
@@ -40,7 +40,7 @@ function log_time() {
   datafim="$(date '+%d/%m/%y %H:%M:%S')"
   tempogasto=$SECONDS
   arquivolog="$(echo "$executavel" | tr ' ' '_' | tr -cd '_a-zA-Z0-9-').ltime"
-  
+
   [[ ! -d ~/logs ]] && { mkdir ~/logs || exit 2 } # create logdir if it doesn't exist, bail out if can't create
 
   if [[ -f ~/logs/"${arquivolog}" ]]
