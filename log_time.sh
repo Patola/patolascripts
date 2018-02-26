@@ -34,10 +34,10 @@ function log_time() {
   SECONDS=0
   executavel=="$1"
   [[ ! -x "$executavel" ]] && { echo "'$executavel' não é executável." ; exit 6 }
-  datainicio="$(date '+%d/%m/%y %H:%M:%S')"
+  datainicio="$(date '+%Y-%m-%d %H:%M:%S')"
   shift
   "$executavel" "$@"
-  datafim="$(date '+%d/%m/%y %H:%M:%S')"
+  datafim="$(date '+%Y-%m-%d %H:%M:%S')"
   tempogasto=$SECONDS
   arquivolog="$(echo "$executavel" | tr ' ' '_' | tr -cd '_a-zA-Z0-9-').ltime"
 
@@ -51,7 +51,7 @@ function log_time() {
     let tempototal=tempogasto
   fi
 
-  echo "$tempogasto seconds this time ($(convertsecs $tempogasto)), $tempototal seconds total time ($(convertsecs $tempototal)). [started $datainicio, ended $datafim]" | tee -a ~/logs/"${arquivolog}"
+  echo "$tempogasto seconds this time ($(convertsecs $tempogasto)), $tempototal seconds total time ($(convertsecs $tempototal)). [started $datainicio and ended $datafim]" | tee -a ~/logs/"${arquivolog}"
   return 0
 }
 
