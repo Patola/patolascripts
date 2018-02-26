@@ -33,6 +33,7 @@ function log_time() {
   [[ "$@" == "" ]] && { echo "Argumento vazio." ; exit 4 }
   SECONDS=0
   executavel=="$1"
+  [[ $executavel == ./* ]] && executavel="$(echo "$executavel" | sed 's#^\./#'"$(pwd)"'/#')"
   [[ ! -x "$executavel" ]] && { echo "'$executavel' não é executável." ; exit 6 }
   datainicio="$(date '+%Y-%m-%d %H:%M:%S')"
   shift

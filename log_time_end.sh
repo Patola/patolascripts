@@ -34,6 +34,7 @@ function log_time_end() {
   SECONDS=0
 
   executavel="$1"
+  [[ $executavel == ./* ]] && executavel="$(echo "$executavel" | sed 's#^\./#'"$(pwd)"'/#')"
   which "$executavel" >&- && executavel=="${executavel}"
 
   arquivolog="$(echo "$executavel" | tr ' ' '_' | tr -cd '_a-zA-Z0-9-').ltime"
