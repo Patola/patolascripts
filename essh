@@ -171,7 +171,7 @@ then
 elif [[ "$HOST" = patola.ath.cx || "$HOST" = patola.or* || "$HOST" = linuxfud.org || "$HOST" = 10.0.0.1 ]]
 then	# my box
 	IP=$(LANG=C LC_ALL=C /sbin/ifconfig wlan0 | grep 'inet addr:' | awk '{print $2}' | cut -f2 -d:)
-	[[ $IP = 10.0.0.* ]] && HOST=10.0.0.1
+	[[ $IP = 10.0.0.* ]] && HOST=10.0.0.66
 	PORT="-p 450"
 	EXTRAPAR="-D 8080 -C"
 	CLIENT=PERSONAL_HOME
@@ -278,15 +278,16 @@ if [[ $COLORTERM == "gnome-terminal" ]]
 then
   OLDTITLE=Terminal
   echo -en "\e]0;${NEWTITLE}\a" 
-elif pgrep yakuake >/dev/null 2>&1
+elif pgrep 'yakuake|guake|tilda' >/dev/null 2>&1
 then
-  OLDTITLE=$( qdbus org.kde.yakuake /yakuake/tabs org.kde.yakuake.tabTitle $(/usr/local/bin/yasession) )
+  if pgrep yakuake
+  then
+    OLDTITLE=$( qdbus org.kde.yakuake /yakuake/tabs org.kde.yakuake.tabTitle $(/usr/local/bin/yasession) )
+  else
+    OLDTITLE="Terminal"
+  fi
 #  /usr/local/bin/yaname -q "$ID@$SHORTHOST"
   /usr/local/bin/yaname -q "$NEWTITLE"
-elif qdbus org.guake.RemoteControl > /dev/null 2>&1
-then
-  OLDTITLE="Terminal $(qdbus org.guake.RemoteControl /org/guake/RemoteControl org.guake.RemoteControl.get_selected_tab)"
-  qdbus org.guake.RemoteControl /org/guake/RemoteControl org.guake.RemoteControl.rename_current_tab "$NEWTITLE"
 fi
 
 if [[ -z "${LOGDIR}/${CLIENT}/$LOGFILE" || "$LOG" == "no" ]]

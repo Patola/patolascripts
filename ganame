@@ -1,0 +1,2 @@
+#!/bin/zsh
+/usr/bin/qdbus org.guake3.RemoteControl /org/guake3/RemoteControl org.guake3.RemoteControl.rename_current_tab "[ $* ]"

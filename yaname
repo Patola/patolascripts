@@ -11,46 +11,54 @@ NEWNAME="$1"
 THISPROCESS=$$
 ARGS="$@"
 
-[[ $(id -u) -eq 0 ]] && {
-  xPPID=$(ps h -o ppid -p $THISPROCESS | tr -d ' ') # Parent pid, because we're are script
-  xPPPID=$(ps h -o ppid -p $xPPID | tr -d ' ') # Parent of parent
-  dbad=$(tr '\000' '\012' < /proc/$xPPPID/environ | grep '^DBUS_SESSION_BUS_ADDRESS=')
-  NEWUSER="$(who am i | awk '{print $1}')"
-  NEWNAME="$(echo "$NEWNAME" | tr -d "'")"
-  [[ $QUIET == 0 ]] && {
-    echo "We're root; changing to user '$NEWUSER' and re-running the script with '$dbad' for PPID '$xPPPID'."
-  }
-  su - "$NEWUSER" -c "export $dbad; $0 '${NEWNAME}'"
-  exit 0
-}
-
-[[ "$NEWNAME" == "" ]] && {
-  xPPID=$(ps h -o ppid -p $THISPROCESS | tr -d ' ') # Parent pid, because we're are script
-  NEWNAME="$(ps h -p $xPPID -o comm)"
-}
-
-found=0
-for session in $(qdbus org.kde.yakuake | grep '^/Sessions/' | sed 's#/Sessions/##')
-do
-  sessionpid=$(qdbus org.kde.yakuake /Sessions/$session org.kde.konsole.Session.processId)
-  pids=$(pstree -p $sessionpid | tr -d '-' | sed 's/[^()]*(\([0-9][0-9]*\))/ \1/g;s/^ *//;s/ /$|^/g;s/^/^/;s/$/$/')
-  if echo $THISPROCESS | egrep -q "$pids"
-  then
-    found=1
-#    tab=$(qdbus org.kde.yakuake /yakuake/tabs org.kde.yakuake.sessionAtTab $session)
-    break
-  fi
-done
-
-if [[ $found -eq 0 ]]
+if [[ -v GUAKE_TAB_UUID ]]
 then
-  [[ $QUIET -eq 0 ]] && echo "Could not find current session on yakuake."
-  exit 1
-else
-  [[ $QUIET -eq 0 ]] && echo "Session = $session, pid=$sessionpid"
+	/usr/local/bin/ganame "$NEWNAME"
+elif pgrep yakuake; then
+	[[ $(id -u) -eq 0 ]] && {
+		xPPID=$(ps h -o ppid -p $THISPROCESS | tr -d ' ') # Parent pid, because we're are script
+		xPPPID=$(ps h -o ppid -p $xPPID | tr -d ' ') # Parent of parent
+		dbad=$(tr '\000' '\012' < /proc/$xPPPID/environ | grep '^DBUS_SESSION_BUS_ADDRESS=')
+		NEWUSER="$(who am i | awk '{print $1}')"
+		NEWNAME="$(echo "$NEWNAME" | tr -d "'")"
+		[[ $QUIET == 0 ]] && {
+			echo "We're root; changing to user '$NEWUSER' and re-running the script with '$dbad' for PPID '$xPPPID'."
+		}
+		su - "$NEWUSER" -c "export $dbad; $0 '${NEWNAME}'"
+		exit 0
+	}
+
+	[[ "$NEWNAME" == "" ]] && {
+		xPPID=$(ps h -o ppid -p $THISPROCESS | tr -d ' ') # Parent pid, because we're are script
+		NEWNAME="$(ps h -p $xPPID -o comm)"
+	}
+
+	found=0
+	for session in $(qdbus org.kde.yakuake | grep '^/Sessions/' | sed 's#/Sessions/##')
+	do
+		sessionpid=$(qdbus org.kde.yakuake /Sessions/$session org.kde.konsole.Session.processId)
+	#  pids=$(pstree -p $sessionpid | tr -d '-' | sed 's/[^()]*(\([0-9][0-9]*\))/ \1/g;s/^ *//;s/ /$|^/g;s/^/^/;s/$/$/')
+		pids='^'$( echo $( pstree -p $sessionpid | tr -d '-' | sed -r 's/(\([0-9]+\))/\n\1\n/g' | grep -E '^\([0-9]+\)$' | tr -d '()' ) | sed 's/ /\$\|\^/g' )'$'
+		if echo $THISPROCESS | egrep -q "$pids"
+		then
+			found=1
+	#    tab=$(qdbus org.kde.yakuake /yakuake/tabs org.kde.yakuake.sessionAtTab $session)
+			break
+		fi
+	done
+
+	if [[ $found -eq 0 ]]
+	then
+		[[ $QUIET -eq 0 ]] && echo "Could not find current session on yakuake."
+		exit 1
+	else
+		[[ $QUIET -eq 0 ]] && echo "Session = $session, pid=$sessionpid"
+	fi
+
+	# I don't know why
+	let session=session-1
+
+	qdbus org.kde.yakuake /yakuake/tabs org.kde.yakuake.setTabTitle $session "$NEWNAME"
+#elif pgrep -f 'python2 -m guake' > /dev/null 2>&1; then
+#  /usr/local/bin/ganame "$NEWNAME"
 fi
-
-# I don't know why
-let session=session-1
-
-qdbus org.kde.yakuake /yakuake/tabs org.kde.yakuake.setTabTitle $session "$NEWNAME"
