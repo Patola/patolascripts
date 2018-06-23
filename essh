@@ -36,6 +36,7 @@ LINUXID="patola"
 LOGDIR="~/logs" # MUST exist and must NOT contain spaces (sorry)
 SSH=/usr/bin/ssh
 MINREMOVE=300 # Amount of bytes the logfile must have for not being purged
+MYTERMINALS="yakuake|guake|tilda|terminator"
 CLIENT=.
 ID=$(id -un)
 
@@ -278,7 +279,7 @@ if [[ $COLORTERM == "gnome-terminal" ]]
 then
   OLDTITLE=Terminal
   echo -en "\e]0;${NEWTITLE}\a" 
-elif pgrep 'yakuake|guake|tilda' >/dev/null 2>&1
+elif pgrep "$MYTERMINALS" >/dev/null 2>&1
 then
   if pgrep yakuake
   then
@@ -313,7 +314,7 @@ fi
 if [[ $COLORTERM == "gnome-terminal" ]]
 then
   echo -en "\e]0;${OLDTITLE}\a"
-elif pgrep yakuake >/dev/null 2>&1
+elif pgrep "$MYTERMINALS" >/dev/null 2>&1
 then
   /usr/local/bin/yaname -q "$OLDTITLE"
 elif qdbus org.guake.RemoteControl > /dev/null 2>&1
