@@ -18,5 +18,5 @@
 #===============================================================================
 
 set -o nounset                              # Treat unset variables as an error
+/usr/bin/setxkbmap -option caps:none
 /usr/bin/setxkbmap -model pc105 -option lv3:ralt_switch_multikey 'us(altgr-intl)'
-
