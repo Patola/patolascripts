@@ -1,0 +1,19 @@
+
+§ =============================================================
+§ ========== USER MACROS ======================================
+§ =============================================================
+§
+|AUTHOR|       = Cláudio "Patola" Sampaio
+|AUTHORREF|    = Patola
+|EMAIL|        = patola@gmail.comm
+|ORGANIZATION| = MakerLinux
+|COPYRIGHT|    = Copyright (c) |YEAR|, |AUTHOR|
+§
+§ =============================================================
+§ ========== FILE INCLUDES ====================================
+§ =============================================================
+§
+|includefile| = bash.comments.template
+|includefile| = bash.statements.template
+|includefile| = bash.paramsub.template
+§
