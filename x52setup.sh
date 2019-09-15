@@ -22,9 +22,9 @@ set -o nounset                              # Treat unset variables as an error
 exec > /tmp/x52-patola.log 2>&1
 x52output bri 0 127
 x52output bri 1 127
-x52output text 0 "$(date '+XX%Y-%m-%d %H:%M')"
-x52output text 1 "XXReady f/ Action "
-x52output text 2 "XX[X] Cmdr.Patola "
+x52output text 0 "$(date '+  %Y-%m-%d %H:%M')"
+x52output text 1 "  Ready f/ Action "
+x52output text 2 "  [X] Cmdr.Patola "
 
 for i in 6 8 18
 do
@@ -55,9 +55,9 @@ while [[ $X52ERR == 0 ]]; do
       x52output led 18 $(((x+1)%2))
     ;;
   esac
-  x52output text 1 "XX$(LC_NUMERIC=C uptime | cut -d: -f5 | cut -c2- | tr ' ' '_') "
-  textres="XX$(ps -ef | grep 'jogos\\steam\\steamapps\\common' | grep -v grep | head -1 | sed 's/.*common\\\(.*\)\\.*/\1                /' | cut -c1-16)"
-  [[ "$textres" != "XX" ]] && x52output text 2 "$textres"
+  x52output text 1 "  $(LC_NUMERIC=C uptime | cut -d: -f5 | cut -c2- | tr ' ' '_') "
+  textres="  $(ps -ef | grep 'jogos\\steam\\steamapps\\common' | grep -v grep | head -1 | sed 's/.*common\\\(.*\)\\.*/\1                /' | cut -c1-16)"
+  [[ "$textres" != "  " ]] && x52output text 2 "$textres"
 
 done &
 
