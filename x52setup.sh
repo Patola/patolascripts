@@ -55,7 +55,7 @@ while [[ $X52ERR == 0 ]]; do
       x52output led 18 $(((x+1)%2))
     ;;
   esac
-  x52output text 1 "  $(LC_NUMERIC=C uptime | cut -d: -f5 | cut -c2- | tr ' ' '_') "
+  x52output text 1 "  $(LC_NUMERIC=C uptime | cut -d, -f3-5 | cut -d: -f2 | cut -c2- | tr ' ' '_')"
   textres="  $(ps -ef | grep 'jogos\\steam\\steamapps\\common' | grep -v grep | head -1 | sed 's/.*common\\\(.*\)\\.*/\1                /' | cut -c1-16)"
   [[ "$textres" != "  " ]] && x52output text 2 "$textres"
 
