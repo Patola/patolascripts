@@ -19,18 +19,13 @@
 
 set -o nounset                              # Treat unset variables as an error
 
+trap "pkill osdsh; exit 0" TRAP INT ABRT KILL QUIT HUP TERM
 
+/usr/bin/osdsh -p 0 -a 2 -c yellow -o 1 -d 5
 while :
 do
-  #/usr/bin/nvidia-smi | head -9 | tail -1 | read x1 fan temperature pstate power x2 totalpower x3 memusage x4 memtotal x5 gpupercent uncorrupted x6
-  #/usr/bin/nvidia-smi | awk '(FNR==9) {print $2,$3,$4,$5,$7,$9,$11,$13,$14 }' | read fan temperature pstate power totalpower memusage memtotal gpupercent uncorrupted
-  /usr/bin/nvidia-smi --query-gpu=fan.speed,temperature.gpu,pstate,power.draw,memory.used,memory.total,utilization.gpu --format=csv,noheader,nounits | read fan temperature pstate power memusage memtotal gpupercent
-  /usr/bin/osd_cat -p top -A right -l 6 -c yellow -S black -a=10 -s 1 <<EOF
-FAN: ${fan%%,*}%
-TEMP: ${temperature%%,*}°C
-PSTATE: ${pstate%%,*}
-P.USAGE: ${power%%,*} W
-MEM: ${memusage%%,*} MiB
-GPU PERC.: ${gpupercent%%,*}%
-EOF
+  /usr/bin/osdctl -s "$(/usr/bin/nvidia-smi --query-gpu=fan.speed,temperature.gpu,pstate,power.draw,memory.used,memory.total,utilization.gpu --format=csv,noheader,nounits | read fan temp pstate power mem memtotal gpu ; echo "FAN ${fan%%,} TEMP ${temp%%,}C PST ${pstate%%,} POW ${power%%,}W MEM ${mem%%,}MiB GPU ${gpu%%,}%")"
+  sleep 5
 done
+
+pkill osdsh # just in case
