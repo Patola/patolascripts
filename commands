@@ -1,13 +1,15 @@
-Gamma1 1.0 || /usr/bin/xrandr --output DP-0 --gamma 1.0:1.0:1.0
-Gamma1 1.2 || /usr/bin/xrandr --output DP-0 --gamma 1.2:1.2:1.2
-Gamma1 1.4 || /usr/bin/xrandr --output DP-0 --gamma 1.4:1.4:1.4
+Gamma1 1.0 || /usr/bin/xrandr --output DP-2 --gamma 1.0:1.0:1.0
+Gamma1 1.2 || /usr/bin/xrandr --output DP-2 --gamma 1.2:1.2:1.2
+Gamma1 1.4 || /usr/bin/xrandr --output DP-2 --gamma 1.4:1.4:1.4
 Gamma2 1.0 || /usr/bin/xrandr --output HDMI-0 --gamma 1.0:1.0:1.0
 Gamma2 1.2 || /usr/bin/xrandr --output HDMI-0 --gamma 1.2:1.2:1.2
 Gamma2 1.4 || /usr/bin/xrandr --output HDMI-0 --gamma 1.4:1.4:1.4
-Habilita 144 Hz || /usr/bin/xrandr --output DP-0 --mode 2560x1080 --rate 144.0
+Habilita 144 Hz || /usr/bin/xrandr --output DP-2 --mode 2560x1080 --rate 144.0
 Habilita Tela2 || /home/patola/bin/monitor2.sh
 Desabilita Tela2 || /home/patola/bin/mon2off.sh
 Call Gkrellm || /usr/bin/gkrellm
 Kill Gkrellm || /usr/bin/pkill gkrellm
 Start X52Setup || /home/patola/bin/x52setup.sh
 Stop X52Setup || /home/patola/bin/x52stop.sh
+Start NVIDIA-OSD || /usr/local/bin/launch /home/patola/bin/nvidia-osd.sh
+Stop NVIDIA-OSD || /usr/bin/pkill nvidia-osd
