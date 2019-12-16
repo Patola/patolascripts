@@ -1,9 +1,9 @@
 #!/bin/zsh - 
 #===============================================================================
 #
-#          FILE: save-dreadout.sh
+#          FILE: save-galaxysquad.sh
 # 
-#         USAGE: ./save-dreadout.sh 
+#         USAGE: ./save-galaxysquad.sh 
 # 
 #   DESCRIPTION: 
 # 
