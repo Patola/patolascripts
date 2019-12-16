@@ -18,13 +18,14 @@
 #===============================================================================
 
 set -o nounset                              # Treat unset variables as an error
+ARGS="$@"
 
 SAVEFILE="/home/patola/.config/unity3d/Oleg Kazakov/Galaxy Squad/saveData.txt"
 COPYTO="/jogos/backup/galaxysquad/saves"
-[[ ( "$SAVEFILE" -nt "$(ls -1trd "$COPYTO"/*/ | tail -1)/saveData.txt" ) && ( $(md5sum "$SAVEFILE") != $(md5sum "$(ls -1trd "$COPYTO"/*/ | tail -1)/saveData.txt") ) ]] && { # we got something new, back it up
+[[ ( "$SAVEFILE" -nt "$(ls -1trd "$COPYTO"/*/ | tail -1)/saveData.txt" ) && ( $(md5sum "$SAVEFILE") != $(md5sum "$(ls -1trd "$COPYTO"/*/ | tail -1)/saveData.txt" ) ) ]] && { # we got something new, back it up
   data="$(date '+%Y%m%d%H%M')"
-  mkdir -p "$COPYTO"/"$data
+  mkdir -p "$COPYTO"/"$data"
   cp -p "$SAVEFILE" "$COPYTO"/"$data"/
 }
 
-exec "$@"
+exec "$ARGS"
