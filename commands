@@ -13,3 +13,6 @@ Start X52Setup || /home/patola/bin/x52setup.sh
 Stop X52Setup || /home/patola/bin/x52stop.sh
 Start NVIDIA-OSD || /usr/local/bin/launch /home/patola/bin/nvidia-osd.sh
 Stop NVIDIA-OSD || /usr/bin/pkill nvidia-osd
+NVIDIA Performance || /home/patola/bin/nvidia-performance.sh
+NVIDIA Adaptive || /home/patola/bin/nvidia-adaptive.sh
+Reseta Teclado || /home/patola/bin/teclado.sh
