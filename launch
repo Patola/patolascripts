@@ -1,0 +1,25 @@
+#!/bin/bash
+
+[ $# -eq 1 -a -d "$1" ] && {
+#	/usr/bin/kfmclient openProfile filemanagement "$1" # On KDE
+#	/usr/bin/xdg-open "$1" # On GNOME
+  exec /usr/bin/nohup /usr/bin/thunar "$1" > /dev/null 2>&1 &
+	exit 0
+}
+
+[[ "$1" == *.doc || "$1" == *.xls || "$1" == *.ppt || "$1" == *.docx || "$1" == *.dot || "$1" == *.odt || "$1" == *.odp || "$1" == *.sxw || "$1" == *.ods || "$1" == *.odg ]] && {
+	exec /usr/local/bin/oo "$1"
+}
+
+[ $# -eq 1 -a -f "$1" -a ! -x "$1" ] && {
+#	/usr/bin/kfmclient exec "$1" # On KDE
+	/usr/bin/xdg-open "$1" # On Gnome
+	exit 0
+}
+
+[[ -x `which $1` ]] || {
+	echo "*** Error! $1 is not executable."
+	exit 2
+}
+
+exec /usr/bin/nohup "$@" > /dev/null 2>&1 &
