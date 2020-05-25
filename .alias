@@ -1,0 +1,71 @@
+[[ -x /sbin/ifconfig ]] && alias ifconfig='/sbin/ifconfig'
+#alias oo='/usr/local/bin/launch /usr/bin/ooffice'
+alias m='/bin/mount /media/cdrom0/'
+alias e='/usr/bin/eject /media/cdrom0/'
+alias k='/usr/local/bin/launch /usr/bin/okular'
+alias u='/bin/umount /media/cdrom0/'
+#alias essh='/usr/local/bin/essh -l'
+function essh {
+  if [[ "$1" = "patola.org" || "$1" = lge* ]]
+  then
+    /usr/local/bin/essh "$@"
+  else
+    /usr/local/bin/essh -l "$@"
+  fi
+}
+function aptc {
+  typeset -F SECONDS=0
+  /usr/bin/sudo apt -V --print-uris "$@"
+  RC=$?
+  if [[ $RC -eq 0 ]]
+  then
+    echo "### Finished apt; took $SECONDS seconds."
+  else
+    echo "*** A PROBLEM OCCURED WITH APT, return code $RC! Check output, please!" >&2
+  fi
+  SECONDS=0
+  /usr/bin/sudo apt clean
+  rctemp=$?
+  let RC=RC+rctemp
+  if [[ $rctemp -eq 0 ]]
+  then
+    echo "### Finished apt cleanup; took $SECONDS seconds."
+  else
+    echo "*** A problem occured with the cleanup, return code $rctemp!!! Check output, please." >&2
+  fi
+
+  return $RC
+}
+
+#alias cg='cd /bioinfo/mestrado/projeto/svnproj/grabber'
+#alias cg='/dados/svn/svnproj/grabber'
+#alias cg='cd /dados/gitroot/grabber'
+#alias sn='/bin/cat ~/.ibmrc | /usr/bin/snx'
+alias fm='/usr/local/bin/launch /usr/bin/freemind'
+alias kn='LANG=en_US.UTF-8 LANGUAGE=en_US.UTF-8 LC_COLLATE=en_US.UTF-8 LC_MESSAGES=en_US.UTF-8 /usr/local/bin/launch /usr/bin/kdenlive'
+#alias di='yaname "[   $(basename $PWD | tr a-z A-Z)   ]"'
+alias lo='/usr/local/bin/launch /usr/bin/libreoffice'
+alias smv='/usr/bin/rsync -avz --remove-source-files -e ssh'
+alias please=sudo
+alias youtube-mp3='youtube-dl -f bestaudio --audio-quality 0 --extract-audio --audio-format mp3 '
+alias mp=/usr/bin/mpv
+alias por_favor='please apt update ; please apt -y full-upgrade ; please apt clean'
+alias favor=por_favor
+alias conexao='nmcli dev show'
+alias ungk='/usr/bin/pkill gkrellm'
+alias gk='/usr/local/bin/launch /usr/bin/gkrellm'
+alias pt='LANG=pt_BR.UTF-8 LANGUAGE=pt_BR.UTF-8 LC_CTYPE=pt_BR.UTF-8 LC_NUMERIC=pt_BR.UTF-8 LC_TIME=pt_BR.UTF-8 LC_COLLATE=pt_BR.UTF-8 LC_MONETARY=pt_BR.UTF-8 LC_MESSAGES=pt_BR.UTF-8 LC_PAPER=pt_BR.UTF-8 LC_NAME=pt_BR.UTF-8 LC_ADDRESS=pt_BR.UTF-8 LC_TELEPHONE=pt_BR.UTF-8 LC_MEASUREMENT=pt_BR.UTF-8 LC_IDENTIFICATION=pt_BR.UTF-8 LC_ALL=pt_BR.UTF-8'
+alias en='LANG=en_US.UTF-8 LANGUAGE=en_US.UTF-8 LC_CTYPE=en_US.UTF-8 LC_NUMERIC=en_US.UTF-8 LC_TIME=en_US.UTF-8 LC_COLLATE=en_US.UTF-8 LC_MONETARY=en_US.UTF-8 LC_MESSAGES=en_US.UTF-8 LC_PAPER=en_US.UTF-8 LC_NAME=en_US.UTF-8 LC_ADDRESS=en_US.UTF-8 LC_TELEPHONE=en_US.UTF-8 LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=en_US.UTF-8 LC_ALL=en_US.UTF-8'
+function killwine() {
+  setopt shwordsplit
+  procs=$(/bin/ps -ef | /bin/grep -v grep | /bin/egrep 'services.exe|winedevice.exe|plugplay.exe|winedevice.exe|explorer.exe|wineserver|winedbg|Z:\\jogos\\.*\.exe|steam /jogos/.*\.exe|C:\\Program Files\\' | /usr/bin/awk '{print $2}')
+  kill $procs 
+  sleep 5
+  kill -9 $procs
+  unsetopt shwordsplit
+}
+
+
+function setgovernor () {
+    echo "$1" | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor 
+}
