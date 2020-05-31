@@ -56,8 +56,6 @@ else
   PROCESS=$MYPID
 fi
 
-ps -ef | grep timer-screenshot
-#[[ "$PROCESS" == "" ]] || ps -eo pid,cmd | awk 'BEGIN { rc=1 } ($2=~/'"$(echo "$PROCESS" | sed 's#/#\\/#g')"'/) {rc=0} END { exit rc }' > /dev/null 2>&1 || {
 while [[ -d /proc/$PROCESS ]]
 do
   /usr/bin/flameshot full -p "$SAVEDIR"
