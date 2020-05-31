@@ -44,8 +44,11 @@ INTERVAL=$1
 
 if [[ "$2" != "" ]]
 then
-  PROCESS="$(ps -eo pid,cmd | awk '($1!='$MYPID' && $2~/'"$(echo "$2" | sed 's#/#\\/#g')"'/) {print $1}' | tail -1)"
-  [[ $PROCESS != "" ]] || {
+#  PROCESS="$(ps -eo pid,cmd | awk '($1!='$MYPID' && $2~/'"$(echo "$2" | sed 's#/#\\/#g')"'/) {print $1}' | tail -1)"
+#  PROCESS=$(ps -eo pid,cmd | awk '($1!=MYPID)' MYPID=$MYPID | grep "$(echo "$2" | sed 's#/#\\/#g')" | awk '{print $1}' | tail -1)
+#  PROCESS=$(pgrep -af "$2" > /tmp/nada.txt; pgrep -f "$2" | grep -v "^${MYPID}$" | tail -1)
+  pgrep -f "$2" | grep -v "^${MYPID}$" | tail -1 | read PROCESS
+  [[ $PROCESS == "" ]] && {
     echo "The process \"$2\" is not even running."
     echo "You have to start this script *after* having"
     echo "started the process. If needed, use something"
