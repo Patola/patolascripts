@@ -19,18 +19,20 @@
 
 SAVEDIR=~/Pictures/screenshots
 mkdir -p "$SAVEDIR" > /dev/null 2>&1
-PROCESS=$0
+PROCESS=""
+MYPID=$$
 
-set -o nounset                              # Treat unset variables as an error
+#set -o nounset                              # Treat unset variables as an error
 [[ $# -eq 0 ]] && {
   echo "Usage: $0 <interval in seconds> [ <process to monitor> ]" >&2
   echo ""
   echo "- interval in seconds: at each n seconds, it will take a screenshot."
-  echo "- if specified, it will continue while this process pattern (name) exist."
-  echo "  Once it exits, the script also exits. If not specified, the script will"
-  echo "  go on forever."
   echo ""
-  echo "Note: pictures are saved in \'$SAVEDIR\"."
+  echo "- process to monitor: if specified, it will continue while this process pattern (name) exist."
+  echo "  Once it exits, the script also exits. If not specified, the script will go on forever."
+  echo ""
+  echo "Note: pictures are saved in \"$SAVEDIR\"."
+  exit 1
 }
 
 INTERVAL=$1
@@ -40,17 +42,23 @@ INTERVAL=$1
   exit 3
 }
 
-[[ "$2" != "" ]] && PROCESS="$2"
+if [[ "$2" != "" ]]
+then
+  PROCESS="$(ps -eo pid,cmd | awk '($1!='$MYPID' && $2~/'"$(echo "$2" | sed 's#/#\\/#g')"'/) {print $1}' | tail -1)"
+  [[ $PROCESS != "" ]] || {
+    echo "The process \"$2\" is not even running."
+    echo "You have to start this script *after* having"
+    echo "started the process. If needed, use something"
+    echo "like \"sleep n; $0 n mygame\"."
+    exit 5
+  }
+else
+  PROCESS=$MYPID
+fi
 
-pgrep -f "$PROCESS" > /dev/null 2>&1 || {
-  echo "The process \"$0\" is not even running."
-  echo "You have to start this screep *after* having"
-  echo "started the process. If needed, use something"
-  echo "like \"sleep n; $0 n mygame\"."
-  exit 5
-}
-
-while pgrep -f "$PROCESS" > /dev/null 2>&1
+ps -ef | grep timer-screenshot
+#[[ "$PROCESS" == "" ]] || ps -eo pid,cmd | awk 'BEGIN { rc=1 } ($2=~/'"$(echo "$PROCESS" | sed 's#/#\\/#g')"'/) {rc=0} END { exit rc }' > /dev/null 2>&1 || {
+while [[ -d /proc/$PROCESS ]]
 do
   /usr/bin/flameshot full -p "$SAVEDIR"
   sleep $INTERVAL
