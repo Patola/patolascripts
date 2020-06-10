@@ -75,10 +75,10 @@ then
     echo "like \"sleep n; $0 n mygame\"."
     exit 5
   }
-else
-  PROCESS=$MYPID
   windowid=$(findwinbypid $PROCESS)
   [[ $windowid != "" ]] && windowname=$(xprop -notype -id $windowid WM_NAME | sed 's/[^"]*\"//;s/"$//')
+else
+  PROCESS=$MYPID
 fi
 
 while [[ -d /proc/$PROCESS ]]
