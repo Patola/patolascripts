@@ -22,13 +22,33 @@ mkdir -p "$SAVEDIR" > /dev/null 2>&1
 PROCESS=""
 MYPID=$$
 
+findwinbypid() {
+  findpid=$1
+
+  declare -a known_windows=( $( ( xwininfo -root -children|sed -e 's/^ *//'|grep -E "^0x"|awk '{ print $1 }' ; wmctrl -l | awk '{print $1}' ) | sort | uniq ) )
+  for id in ${known_windows}
+  do
+      pid=$(xprop -id $id _NET_WM_PID 2> /dev/null | awk '{print $3}')
+      if [[ "$pid" != "" ]]; then
+          if [[ "${pid}" == "${findpid}" ]]
+          then
+              echo "$id" 
+          fi
+      fi
+  done
+}
+
+
 #set -o nounset                              # Treat unset variables as an error
 [[ $# -eq 0 ]] && {
   echo "Usage: $0 <interval in seconds> [ <process to monitor> ]" >&2
   echo ""
   echo "- interval in seconds: at each n seconds, it will take a screenshot."
   echo ""
-  echo "- process to monitor: if specified, it will continue while this process pattern (name) exist."
+  echo "- process to monitor: a pid or a string. If it is a string, it will try"
+  echo "  and get the window and pid based on that. If it is a number it will"
+  echo "  consider it a pid. Once specified, it will continue while this"
+  echo"   process pattern (name) exist."
   echo "  Once it exits, the script also exits. If not specified, the script will go on forever."
   echo ""
   echo "Note: pictures are saved in \"$SAVEDIR\"."
@@ -57,11 +77,18 @@ then
   }
 else
   PROCESS=$MYPID
+  windowid=$(findwinbypid $PROCESS)
+  [[ $windowid != "" ]] && windowname=$(xprop -notype -id $windowid WM_NAME | sed 's/[^"]*\"//;s/"$//')
 fi
 
 while [[ -d /proc/$PROCESS ]]
 do
-  /usr/bin/flameshot full -p "$SAVEDIR"
+  if [[ $windowid != "" ]]
+  then
+    /usr/bin/maim -i $janela > ~/Pictures/screenshots/maim-screenshot-${windowname:-game}-$(date '+%Y%m%d%H%M%S').png
+  else
+    /usr/bin/flameshot full -p "$SAVEDIR"
+  fi
   sleep $INTERVAL
 done
 
