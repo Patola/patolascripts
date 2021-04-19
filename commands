@@ -1,21 +1,18 @@
-Gamma1 1.0 || /usr/bin/xrandr --output DP-4 --gamma 1.0:1.0:1.0
-Gamma1 1.2 || /usr/bin/xrandr --output DP-4 --gamma 1.2:1.2:1.2
-Gamma1 1.4 || /usr/bin/xrandr --output DP-4 --gamma 1.4:1.4:1.4
+Gamma1 1.0 || /usr/bin/xrandr --output DP-2 --gamma 1.0:1.0:1.0
+Gamma1 1.4 || /usr/bin/xrandr --output DP-2 --gamma 1.4:1.4:1.4
 Gamma2 1.0 || /usr/bin/xrandr --output HDMI-0 --gamma 1.0:1.0:1.0
-Gamma2 1.2 || /usr/bin/xrandr --output HDMI-0 --gamma 1.2:1.2:1.2
 Gamma2 1.4 || /usr/bin/xrandr --output HDMI-0 --gamma 1.4:1.4:1.4
-Habilita 144 Hz || /usr/bin/xrandr --output DP-4 --mode 2560x1080 --rate 144.0
+Habilita 144 Hz || /usr/bin/xrandr --output DisplayPort-0 --mode 2560x1080 --rate 144.0
+Habilita 60 Hz || /usr/bin/xrandr --output DisplayPort-0 --mode 2560x1080 --rate 60.0
+Habilita Tela1 || /home/patola/bin/monitor1.sh
 Habilita Tela2 || /home/patola/bin/monitor2.sh
-Desabilita Tela2 || /home/patola/bin/mon2off.sh
+Habilita 2 Telas, 1 Primária || /home/patola/bin/monitorall1.sh
+Habilita 2 Telas, 2 Primária || /home/patola/bin/monitorall1.sh
 Call Gkrellm || /usr/bin/gkrellm
 Kill Gkrellm || /usr/bin/pkill gkrellm
 Start X52Setup || /home/patola/bin/x52setup.sh
 Stop X52Setup || /home/patola/bin/x52stop.sh
 Kill X52Setup || /usr/bin/pkill -f x52setup.sh
-Start NVIDIA-OSD || /usr/local/bin/launch /home/patola/bin/nvidia-osd.sh
-Stop NVIDIA-OSD || /usr/bin/pkill nvidia-osd
-NVIDIA Performance || /home/patola/bin/nvidia-performance.sh
-NVIDIA Adaptive || /home/patola/bin/nvidia-adaptive.sh
 Reseta Teclado || /home/patola/bin/teclado.sh
 Som HEADPHONE || /home/patola/bin/redir-stream.sh -g
 Som VALVE INDEX || /home/patola/bin/redir-stream.sh -v
@@ -23,3 +20,6 @@ Som CAIXAS || /home/patola/bin/redir-stream.sh -s
 VR ON || /usr/bin/sudo /home/patola/bin/vr.py on
 VR OFF || /usr/bin/sudo /home/patola/bin/vr.py off
 RESTEAM || /usr/local/bin/launch /home/patola/bin/resteam.sh
+START SESSION || /home/patola/bin/start-session.sh
+KILL WINE || /home/patola/bin/wkill.sh
+PKILL XDG-OPEN || /usr/bin/pkill xdg-open
