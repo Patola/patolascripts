@@ -2,8 +2,8 @@ Gamma1 1.0 || /usr/bin/xrandr --output DP-2 --gamma 1.0:1.0:1.0
 Gamma1 1.4 || /usr/bin/xrandr --output DP-2 --gamma 1.4:1.4:1.4
 Gamma2 1.0 || /usr/bin/xrandr --output HDMI-0 --gamma 1.0:1.0:1.0
 Gamma2 1.4 || /usr/bin/xrandr --output HDMI-0 --gamma 1.4:1.4:1.4
-Habilita 144 Hz || /usr/bin/xrandr --output DisplayPort-0 --mode 2560x1080 --rate 144.0
-Habilita 60 Hz || /usr/bin/xrandr --output DisplayPort-0 --mode 2560x1080 --rate 60.0
+Habilita 144 Hz || /usr/bin/xrandr --output DP-1 --mode 2560x1080 --rate 144.0
+Habilita 60 Hz || /usr/bin/xrandr --output DP-1 --mode 2560x1080 --rate 60.0
 Habilita Tela1 || /home/patola/bin/monitor1.sh
 Habilita Tela2 || /home/patola/bin/monitor2.sh
 Habilita 2 Telas, 1 Primária || /home/patola/bin/monitorall1.sh
@@ -20,6 +20,12 @@ Som CAIXAS || /home/patola/bin/redir-stream.sh -s
 VR ON || /usr/bin/sudo /home/patola/bin/vr.py on
 VR OFF || /usr/bin/sudo /home/patola/bin/vr.py off
 RESTEAM || /usr/local/bin/launch /home/patola/bin/resteam.sh
+STOP RESTEAM || /usr/bin/pkill -f resteam.sh
 START SESSION || /home/patola/bin/start-session.sh
 KILL WINE || /home/patola/bin/wkill.sh
 PKILL XDG-OPEN || /usr/bin/pkill xdg-open
+IBUS || /usr/bin/ibus-daemon -drx
+VROVERLAY || /home/patola/bin/vroverlay.sh
+STOP VROVERLAY || /usr/bin/pkill -f vroverlay.x86_64
+ENABLE MAGIC SYSRQ || /home/patola/bin/enablesysrq.sh
+RETURN MAGIC SYSRQ DEFAULTS || /home/patola/bin/disablesysrq.sh
